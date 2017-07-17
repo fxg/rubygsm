@@ -5,7 +5,7 @@ Gem::Specification.new do |s|
 	s.summary  = "Send and receive SMS with a GSM modem"
 	s.email    = "adam.mckaig@gmail.com"
 	s.homepage = "https://github.com/kontomatik/rubygsm"
-	s.authors  = ["Adam Mckaig", "Paweł Pachołek"]
+	s.authors  = ["Adam Mckaig", "Pawel Pacholek"]
 	s.has_rdoc = true
 
 	s.files = [
