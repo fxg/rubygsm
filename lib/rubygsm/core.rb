@@ -109,7 +109,7 @@ class Modem
 		# consistant, and the logs a bit more sane.
 		try_command "ATE0"      # echo off
 		try_command "AT+CMEE=1" # useful errors
-		try_command "AT+WIND=0" # no notifications
+		#try_command "AT+WIND=0" # no notifications
 		
 		# PDU mode isn't supported right now (although
 		# it should be, because it's quite simple), so
@@ -920,9 +920,9 @@ class Modem
 
 				# enable new message notification mode every ten intevals, in case the
 				# modem "forgets" (power cycle, etc)
-				if (@polled % 10) == 0
-					try_command("AT+CNMI=2,2,0,0,0")
-				end
+				#if (@polled % 10) == 0
+				#	try_command("AT+CNMI=2,2,0,0,0")
+				#end
 				
 				# check for new messages lurking in the device's
 				# memory (in case we missed them (yes, it happens))
