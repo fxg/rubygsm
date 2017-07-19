@@ -908,11 +908,11 @@ class Modem
 	# Note: New messages may arrive at any time, even if this method's
 	# receiver thread isn't waiting to process them. They are not lost,
 	# but cached in @incoming until this method is called.
-	def receive(callback, interval=5, join_thread=false)
+	def receive(callback, interval=5)#, join_thread=false)
 		@polled = 0
 		
-		@thr = Thread.new do
-			Thread.current["name"] = "receiver"
+	#	@thr = Thread.new do
+	#		Thread.current["name"] = "receiver"
 			
 			# keep on receiving forever
 			while true
@@ -955,11 +955,11 @@ class Modem
 				sleep(interval)
 				@polled += 1
 			end
-		end
+	#	end
 		
 		# it's sometimes handy to run single-
 		# threaded (like debugging handsets)
-		@thr.join if join_thread
+	#	@thr.join if join_thread
 	end
 	
 
