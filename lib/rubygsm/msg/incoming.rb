@@ -3,22 +3,24 @@
 
 module Gsm
 	class Incoming
-		attr_reader :device, :sender, :sent, :received, :text
+		attr_reader :device, :from, :sent, :date, :to, :text, :pdu
 		
-		def initialize(device, sender, sent, text)
+		def initialize(device, from, sent, text, pdu = nil)
 			
 			# move all arguments into read-only
 			# attributes. ugly, but Struct only
 			# supports read/write attrs
 			@device = device
-			@sender = sender
+			@from = from
 			@sent = sent
+			@to = device.self_phone_number
 			@text = text
+			@pdu = pdu
 			
 			# assume that the message was
 			# received right now, since we
 			# don't have an incoming buffer
-			@received = Time.now
+			@date = Time.now
 		end
 		
 		# Returns the sender of this message,

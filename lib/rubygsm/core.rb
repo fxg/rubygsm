@@ -109,16 +109,14 @@ class Modem
 		# consistant, and the logs a bit more sane.
 		try_command "ATE0"      # echo off
 		try_command "AT+CMEE=1" # useful errors
-		#try_command "AT+WIND=0" # no notifications
-		
-		# PDU mode isn't supported right now (although
-		# it should be, because it's quite simple), so
-		# switching to text mode (mode 1) is MANDATORY
-		command "AT+CMGF=1"
+
+		# switching to PDU mode (mode 0) is MANDATORY
+		command "AT+CMGF=0"
 
 		# storing all messages on SIM card only
 		command "AT+CPMS=\"SM\",\"SM\",\"SM\""
 
+		# fetching and storing self phone number
 		phone_number_response = try_command("AT+CNUM")
 		line_with_number = phone_number_response[0].match(/^\+CNUM: ".*","(\+?\d+)",\d+$/)
 		if line_with_number.nil?
@@ -138,7 +136,7 @@ class Modem
 	
 	
 	INCOMING_FMT = "%y/%m/%d,%H:%M:%S%Z" #:nodoc:
-	CMGL_STATUS = "REC UNREAD" #:nodoc:
+	CMGL_STATUS = 0 # to fetch unread messages in PDU mode
 
 
 	def parse_incoming_timestamp(ts)
@@ -393,11 +391,7 @@ class Modem
 				(line[0,6] == "+CREG:") or
 				(line[0,7] == "+CGREG:")
 			end
-		
-			# parse out any incoming sms that were bundled
-			# with this data (to be fetched later by an app)
-			parse_incoming_sms!(out)
-		
+
 			# log the modified output
 			log_decr "=#{out.inspect} // command!"
 		
@@ -922,27 +916,14 @@ class Modem
 	# Note: New messages may arrive at any time, even if this method's
 	# receiver thread isn't waiting to process them. They are not lost,
 	# but cached in @incoming until this method is called.
-	def receive(callback, interval=5)#, join_thread=false)
-	#	@polled = 0
-		
-	#	@thr = Thread.new do
-	#		Thread.current["name"] = "receiver"
+	def receive(callback, interval=5)
 			
 			# keep on receiving forever
 			while true
 				command "AT"
 
-				# enable new message notification mode every ten intevals, in case the
-				# modem "forgets" (power cycle, etc)
-				#if (@polled % 10) == 0
-				#	try_command("AT+CNMI=2,2,0,0,0")
-				#end
-				
 				# check for new messages lurking in the device's
-				# memory (in case we missed them (yes, it happens))
-			#	if (@polled % 4) == 0
 				fetch_stored_messages
-		#		end
 				
 				# if there are any new incoming messages,
 				# iterate, and pass each to the receiver
@@ -969,20 +950,13 @@ class Modem
 				# re-poll every
 				# five seconds
 				sleep(interval)
-		#		@polled += 1
 			end
-	#	end
-		
-		# it's sometimes handy to run single-
-		# threaded (like debugging handsets)
-	#	@thr.join if join_thread
 	end
-	
 
 	def fetch_stored_messages
 		
 		# fetch all/unread (see constant) messages
-		lines = command('AT+CMGL="%s"' % CMGL_STATUS)
+		lines = command('AT+CMGL=%s' % CMGL_STATUS)
 		n = 0
 		
 		# if the last line returned is OK
@@ -994,11 +968,12 @@ class Modem
 		# stored messages waiting, this done nothing!
 		while n < lines.length
 			
-			# attempt to parse the CMGL line (we're skipping
+			# attempt to find the CMGL line (we're skipping
 			# two lines at a time in this loop, so we will
 			# always land at a CMGL line here) - they look like:
-			#   +CMGL: 0,"REC READ","+13364130840",,"09/03/04,21:59:31-20"
-			unless m = lines[n].match(/^\+CMGL: (\d+),"(.+?)","(.+?)",*?,"(.+?)".*?$/)
+			#   +CMGL: 1,0,,39
+			#   07911326040011F5240B911326880736F40000111081017362401654747A0E4ACF41F4329E0E6A97E7F3F0B90C8A01
+			unless lines[n].match(/^\+CMGL: (\d+),(\d+),(\d*),(\d+)$/)
 				err = "Couldn't parse CMGL data: #{lines[n]}"
 				raise RuntimeError.new(err)
 			end
@@ -1010,19 +985,21 @@ class Modem
 				nn >= lines.length ||\
 				lines[nn][0,6] == "+CMGL:"
 			
-			# extract the meta-info from the CMGL line, and the
-			# message text from the lines between _n_ and _nn_
-			index, status, from, timestamp = *m.captures
-			msg_text = lines[(n+1)..(nn-1)].join("\n").strip
+			# extract and parse PDU from the line just below the CMGL line
+      pdu = lines[n+1]
+      decoded_pdu = PduDecoder.decode(pdu)
+      from = decoded_pdu.address
+      sent = decoded_pdu.timestamp
+      text = decoded_pdu.body
 			
 			# log the incoming message
-			log "Fetched stored message from #{from}: #{msg_text.inspect}"
+			log "Fetched stored message from #{from} sent #{sent}: #{text.inspect}"
 			
 			# store the incoming data to be picked up
 			# from the attr_accessor as a tuple (this
 			# is kind of ghetto, and WILL change later)
-			sent = parse_incoming_timestamp(timestamp)
-			msg = Gsm::Incoming.new(self, from, sent, msg_text)
+			# sent = parse_incoming_timestamp(timestamp)
+			msg = Gsm::Incoming.new(self, from, sent, text, pdu)
 			@incoming.push(msg)
 		
 			# skip over the messge line(s),

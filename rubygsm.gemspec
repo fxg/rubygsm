@@ -1,7 +1,12 @@
+lib = File.expand_path('../lib', __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+test = File.expand_path('../test', __FILE__)
+$LOAD_PATH.unshift(test) unless $LOAD_PATH.include?(test)
+
 Gem::Specification.new do |s|
 	s.name     = "rubygsm"
-	s.version  = "0.50"
-	s.date     = "2017-09-18"
+	s.version  = "0.51"
+	s.date     = "2017-12-12"
 	s.summary  = "Send and receive SMS with a GSM modem"
 	s.email    = "adam.mckaig@gmail.com"
 	s.homepage = "https://github.com/kontomatik/rubygsm"
@@ -26,4 +31,9 @@ Gem::Specification.new do |s|
 	]
 
 	s.add_dependency("serialport", [">= 1.1.0"])
+  s.add_dependency("pdu_tools", [">=0.0.11"])
+
+  s.add_development_dependency 'minitest', '~> 5.10'
+	s.add_development_dependency 'bundler', '~> 1.11'
+	s.add_development_dependency 'rake', '~> 12.0'
 end

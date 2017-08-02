@@ -5,6 +5,7 @@ dir = File.dirname(__FILE__)
 require "#{dir}/rubygsm/core.rb"
 require "#{dir}/rubygsm/errors.rb"
 require "#{dir}/rubygsm/log.rb"
+require "#{dir}/rubygsm/pdu_decoder.rb"
 
 # messages are now passed around
 # using objects, rather than flat
