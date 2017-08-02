@@ -114,7 +114,7 @@ class Modem
 		# PDU mode isn't supported right now (although
 		# it should be, because it's quite simple), so
 		# switching to text mode (mode 1) is MANDATORY
-		command "AT+CMGF=1"
+		command "AT+CMGF=0"
 
 		# storing all messages on SIM card only
 		command "AT+CPMS=\"SM\",\"SM\",\"SM\""
@@ -138,7 +138,7 @@ class Modem
 	
 	
 	INCOMING_FMT = "%y/%m/%d,%H:%M:%S%Z" #:nodoc:
-	CMGL_STATUS = "REC UNREAD" #:nodoc:
+	CMGL_STATUS = 0 #:nodoc:
 
 
 	def parse_incoming_timestamp(ts)
@@ -397,7 +397,7 @@ class Modem
 			# parse out any incoming sms that were bundled
 			# with this data (to be fetched later by an app)
 			parse_incoming_sms!(out)
-		
+			
 			# log the modified output
 			log_decr "=#{out.inspect} // command!"
 		
@@ -982,7 +982,7 @@ class Modem
 	def fetch_stored_messages
 		
 		# fetch all/unread (see constant) messages
-		lines = command('AT+CMGL="%s"' % CMGL_STATUS)
+		lines = command('AT+CMGL=0')
 		n = 0
 		
 		# if the last line returned is OK
@@ -998,7 +998,7 @@ class Modem
 			# two lines at a time in this loop, so we will
 			# always land at a CMGL line here) - they look like:
 			#   +CMGL: 0,"REC READ","+13364130840",,"09/03/04,21:59:31-20"
-			unless m = lines[n].match(/^\+CMGL: (\d+),"(.+?)","(.+?)",*?,"(.+?)".*?$/)
+			unless m = lines[n].match(/^\+CMGL: (\d+),(\d+),(\d*),(\d+)$/)
 				err = "Couldn't parse CMGL data: #{lines[n]}"
 				raise RuntimeError.new(err)
 			end
