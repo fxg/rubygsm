@@ -1013,6 +1013,8 @@ class Modem
 			# on to the next CMGL line
 			n = nn
 		end
+		command('AT+CMGD=0,1') # remove all read messages (to prevent filling whole simcard memory) 
+		# more info: http://www.developershome.com/sms/readSmsByAtCommands.asp
 	end
 end # Modem
 end # Gsm
