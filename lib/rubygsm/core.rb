@@ -115,6 +115,9 @@ class Modem
 		# it should be, because it's quite simple), so
 		# switching to text mode (mode 1) is MANDATORY
 		command "AT+CMGF=1"
+
+		# storing all messages on SIM card only
+		command "AT+CPMS=\"SM\",\"SM\",\"SM\""
 	end
 	
 	
