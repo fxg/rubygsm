@@ -20,7 +20,7 @@ class Modem
 	
 	
 	attr_accessor :verbosity, :read_timeout
-	attr_reader :device, :port
+	attr_reader :device, :port, :self_phone_number
 	
 	# call-seq:
 	#   Gsm::Modem.new(port, verbosity=:warn)
@@ -118,6 +118,16 @@ class Modem
 
 		# storing all messages on SIM card only
 		command "AT+CPMS=\"SM\",\"SM\",\"SM\""
+
+		phone_number_response = try_command("AT+CNUM")
+		line_with_number = phone_number_response[0].match(/^\+CNUM: ".*","(\+?\d+)",\d+$/)
+		if line_with_number.nil?
+			@self_phone_number = nil
+			log "Failed to fetch the self phone number"
+		else
+			@self_phone_number = line_with_number[1]
+			Thread.current['name'] += '_' + @self_phone_number
+		end
 	end
 	
 	
