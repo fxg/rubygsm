@@ -22,13 +22,13 @@ class Modem
 			# path (ttyS0, ttyUSB1, etc) and date/time
 			fn_port = File.basename(@port)
 			fn_time = Time.now.strftime("%Y-%m-%d.%H-%M-%S")
-			filename = "rubygsm.#{fn_port}.#{fn_time}.log"
+			filename = "#{fn_port}.modem_setup.#{fn_time}.log"
 		
 		# if the port path is unknown, log to
 		# the same file each time. TODO: we
 		# really need a proper logging solution
 		else
-			filename = "rubygsm.log"
+			filename = "modem_setup.log"
 		end
 		
 		# (re-) open the log file
@@ -42,6 +42,11 @@ class Modem
 		log "  verbosity: #{@verbosity}"
 		log "  started at: #{Time.now}"
 		log "===="
+	end
+
+	def add_self_phone_number_to_log_file_name(self_phone_number)
+		new_name = File.absolute_path(@log).sub('modem_setup', self_phone_number)
+		File.rename(@log, new_name)
 	end
 	
 	def log(msg, level=:debug)
