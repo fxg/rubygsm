@@ -56,24 +56,24 @@ class Modem
 		return false if\
 			@log.nil?
 		
-		ind = "  " * (@log_indents[Thread.current] or 0)
+		ind = "  " * ((@log_indents[Thread.current] or 0) + 1)
 		
 		# create a 
-		thr = Thread.current["name"]
-		thr = (thr.nil?) ? "" : "[#{thr}] "
+	#	thr = Thread.current["name"]
+	#	thr = (thr.nil?) ? "" : "[#{thr}] "
 		
 		# dump (almost) everything to file
 		if LOG_LEVELS[level] >= LOG_LEVELS[:debug]\
 		or level == :file
 		
-			@log.puts thr + ind + msg
+			@log.puts Time.now.strftime('%F %T.%L') + ind + msg
 			@log.flush
 		end
 		
 		# also print to the rolling
 		# screen log, if necessary
 		if LOG_LEVELS[@verbosity] >= LOG_LEVELS[level]
-			$stderr.puts thr + ind + msg
+			$stderr.puts Time.now.strftime('%F %T.%L') + ind + msg
 		end
 	end
 	
