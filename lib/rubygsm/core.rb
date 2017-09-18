@@ -923,7 +923,7 @@ class Modem
 	# receiver thread isn't waiting to process them. They are not lost,
 	# but cached in @incoming until this method is called.
 	def receive(callback, interval=5)#, join_thread=false)
-		@polled = 0
+	#	@polled = 0
 		
 	#	@thr = Thread.new do
 	#		Thread.current["name"] = "receiver"
@@ -940,9 +940,9 @@ class Modem
 				
 				# check for new messages lurking in the device's
 				# memory (in case we missed them (yes, it happens))
-				if (@polled % 4) == 0
-					fetch_stored_messages
-				end
+			#	if (@polled % 4) == 0
+				fetch_stored_messages
+		#		end
 				
 				# if there are any new incoming messages,
 				# iterate, and pass each to the receiver
@@ -963,11 +963,13 @@ class Modem
 					# race condition, and i fail at ruby
 					@incoming.clear
 				end
-				
+
+				command('AT+CMGD=0,1') # remove all read messages (to prevent filling whole simcard memory)
+				# more info: http://www.developershome.com/sms/readSmsByAtCommands.asp
 				# re-poll every
 				# five seconds
 				sleep(interval)
-				@polled += 1
+		#		@polled += 1
 			end
 	#	end
 		
@@ -1027,8 +1029,6 @@ class Modem
 			# on to the next CMGL line
 			n = nn
 		end
-		command('AT+CMGD=0,1') # remove all read messages (to prevent filling whole simcard memory) 
-		# more info: http://www.developershome.com/sms/readSmsByAtCommands.asp
 	end
 end # Modem
 end # Gsm
