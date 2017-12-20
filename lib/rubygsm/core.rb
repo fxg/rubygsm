@@ -999,7 +999,7 @@ class Modem
 			# from the attr_accessor as a tuple (this
 			# is kind of ghetto, and WILL change later)
 			# sent = parse_incoming_timestamp(timestamp)
-			msg = Gsm::Incoming.new(self, from, sent, text, pdu)
+			msg = Gsm::Incoming.new(self, from.gsub("\u0000", ''), sent, text, pdu)
 			@incoming.push(msg)
 		
 			# skip over the messge line(s),
