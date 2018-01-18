@@ -557,7 +557,7 @@ class Modem
 		# a Gsm::ResetError, so it can be caught upstream.
 		# this usually indicates a serious problem.
 		rescue Exception
-			raise ResetError	
+			raise ResetError
 		end
 	end
 	
@@ -975,6 +975,7 @@ class Modem
 			#   07911326040011F5240B911326880736F40000111081017362401654747A0E4ACF41F4329E0E6A97E7F3F0B90C8A01
 			unless lines[n].match(/^\+CMGL: (\d+),(\d+),(\d*),(\d+)$/)
 				err = "Couldn't parse CMGL data: #{lines[n]}"
+				log err
 				raise RuntimeError.new(err)
 			end
 			
