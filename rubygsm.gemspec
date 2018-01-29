@@ -5,8 +5,8 @@ $LOAD_PATH.unshift(test) unless $LOAD_PATH.include?(test)
 
 Gem::Specification.new do |s|
 	s.name     = "rubygsm"
-	s.version  = "0.53"
-	s.date     = "2018-01-22"
+	s.version  = "0.54.1"
+	s.date     = "2018-01-29"
 	s.summary  = "Send and receive SMS with a GSM modem"
 	s.email    = "adam.mckaig@gmail.com"
 	s.homepage = "https://github.com/kontomatik/rubygsm"

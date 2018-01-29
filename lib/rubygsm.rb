@@ -6,11 +6,13 @@ require "#{dir}/rubygsm/core.rb"
 require "#{dir}/rubygsm/errors.rb"
 require "#{dir}/rubygsm/log.rb"
 require "#{dir}/rubygsm/pdu_decoder.rb"
+require "#{dir}/rubygsm/sms_merger.rb"
 
 # messages are now passed around
 # using objects, rather than flat
 # arguments (from, time, msg, etc)
 require "#{dir}/rubygsm/msg/incoming.rb"
+require "#{dir}/rubygsm/msg/multi_part_incoming.rb"
 require "#{dir}/rubygsm/msg/outgoing.rb"
 
 # during development, it's important to EXPLODE

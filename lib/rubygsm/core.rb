@@ -103,7 +103,7 @@ class Modem
 		# until they're dealt with by
 		# someone else, like a commander
 		@incoming = []
-		
+		@incoming_multi_parts = []
 		# initialize the modem; rubygsm is (supposed to be) robust enough to function
 		# without these working (hence the "try_"), but they make different modems more
 		# consistant, and the logs a bit more sane.
@@ -237,9 +237,9 @@ class Modem
 				# store the incoming data to be picked up
 				# from the attr_accessor as a tuple (this
 				# is kind of ghetto, and WILL change later)
-				sent = parse_incoming_timestamp(timestamp)
-				msg = Gsm::Incoming.new(self, from, sent, msg_text)
-				@incoming.push(msg)
+				# sent = parse_incoming_timestamp(timestamp)
+				# msg = Gsm::Incoming.new(self, from, sent, msg_text)
+				# @incoming.push(msg)
 			end
 			
 			# drop the two CMT lines (meta-info and message),
@@ -924,7 +924,9 @@ class Modem
 
 				# check for new messages lurking in the device's
 				fetch_stored_messages
-				
+
+				SmsMerger.merge(@incoming_multi_parts, @incoming)
+
 				# if there are any new incoming messages,
 				# iterate, and pass each to the receiver
 				# in the same format that they were built
@@ -992,21 +994,31 @@ class Modem
       from = decoded_pdu.address
       sent = decoded_pdu.timestamp
       text = decoded_pdu.body
-			
+
 			# log the incoming message
-			log "Fetched stored message from #{from} sent #{sent}: #{text.inspect}"
-			
+			log "Fetched #{message_type(decoded_pdu)} from #{from} sent #{sent}: #{text.inspect}"
+
 			# store the incoming data to be picked up
 			# from the attr_accessor as a tuple (this
 			# is kind of ghetto, and WILL change later)
 			# sent = parse_incoming_timestamp(timestamp)
-			msg = Gsm::Incoming.new(self, from.gsub("\u0000", ''), sent, text, pdu)
-			@incoming.push(msg)
+			msg = Gsm::Incoming.new(self, decoded_pdu, pdu)
+			SmsMerger.add(@incoming_multi_parts, @incoming, msg)
 		
 			# skip over the messge line(s),
 			# on to the next CMGL line
 			n = nn
 		end
 	end
+
+	def message_type(decoded_pdu)
+		decoded_pdu.complete? ? 'complete message' : "message part (#{part_data(decoded_pdu)})"
+	end
+
+	def part_data(decoded_pdu)
+		multipart = decoded_pdu.user_data_header[:multipart]
+		"#{multipart[:part_number]} from #{multipart[:parts]} with id #{multipart[:reference]}"
+	end
+
 end # Modem
 end # Gsm
