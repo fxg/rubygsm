@@ -103,7 +103,6 @@ class Modem
 		# until they're dealt with by
 		# someone else, like a commander
 		@incoming = []
-		
 		# initialize the modem; rubygsm is (supposed to be) robust enough to function
 		# without these working (hence the "try_"), but they make different modems more
 		# consistant, and the logs a bit more sane.
@@ -120,13 +119,12 @@ class Modem
 		phone_number_response = try_command("AT+CNUM")
 		line_with_number = phone_number_response[0].match(/^\+CNUM: ".*","(\+?\d+)",\d+$/)
 		if line_with_number.nil?
-			@self_phone_number = nil
-			add_self_phone_number_to_log_file_name('unknown_number')
+			@self_phone_number = 'unknown_number'
 			log 'Failed to fetch the self phone number'
 		else
 			@self_phone_number = line_with_number[1]
-			add_self_phone_number_to_log_file_name(@self_phone_number)
 		end
+		add_self_phone_number_to_log_file_name(@self_phone_number)
 	end
 	
 	
@@ -237,9 +235,9 @@ class Modem
 				# store the incoming data to be picked up
 				# from the attr_accessor as a tuple (this
 				# is kind of ghetto, and WILL change later)
-				sent = parse_incoming_timestamp(timestamp)
-				msg = Gsm::Incoming.new(self, from, sent, msg_text)
-				@incoming.push(msg)
+				# sent = parse_incoming_timestamp(timestamp)
+				# msg = Gsm::Incoming.new(self, from, sent, msg_text)
+				# @incoming.push(msg)
 			end
 			
 			# drop the two CMT lines (meta-info and message),
@@ -924,7 +922,7 @@ class Modem
 
 				# check for new messages lurking in the device's
 				fetch_stored_messages
-				
+
 				# if there are any new incoming messages,
 				# iterate, and pass each to the receiver
 				# in the same format that they were built
@@ -992,15 +990,15 @@ class Modem
       from = decoded_pdu.address
       sent = decoded_pdu.timestamp
       text = decoded_pdu.body
-			
+
 			# log the incoming message
-			log "Fetched stored message from #{from} sent #{sent}: #{text.inspect}"
-			
+			log "Fetched #{message_type(decoded_pdu)} from #{from} sent #{sent}: #{text.inspect}"
+
 			# store the incoming data to be picked up
 			# from the attr_accessor as a tuple (this
 			# is kind of ghetto, and WILL change later)
 			# sent = parse_incoming_timestamp(timestamp)
-			msg = Gsm::Incoming.new(self, from.gsub("\u0000", ''), sent, text, pdu)
+			msg = Gsm::Incoming.new(self, decoded_pdu, pdu)
 			@incoming.push(msg)
 		
 			# skip over the messge line(s),
@@ -1008,5 +1006,15 @@ class Modem
 			n = nn
 		end
 	end
+
+	def message_type(decoded_pdu)
+		decoded_pdu.complete? ? 'complete message' : "message part (#{part_data(decoded_pdu)})"
+	end
+
+	def part_data(decoded_pdu)
+		multipart = decoded_pdu.user_data_header[:multipart]
+		"#{multipart[:part_number]} from #{multipart[:parts]} with id #{multipart[:reference]}"
+	end
+
 end # Modem
 end # Gsm

@@ -1,33 +1,23 @@
-#!/usr/bin/env ruby
-# vim: noet
-
 module Gsm
-	class Incoming
-		attr_reader :device, :from, :sent, :date, :to, :text, :pdu
-		
-		def initialize(device, from, sent, text, pdu = nil)
-			
-			# move all arguments into read-only
-			# attributes. ugly, but Struct only
-			# supports read/write attrs
-			@device = device
-			@from = from
-			@sent = sent
-			@to = device.self_phone_number
-			@text = text
-			@pdu = pdu
-			
-			# assume that the message was
-			# received right now, since we
-			# don't have an incoming buffer
-			@date = Time.now
-		end
-		
-		# Returns the sender of this message,
-		# so incoming and outgoing messages
-		# can be logged in the same way.
-		def number
-			sender
-		end
-	end
+  # Incoming
+  class Incoming
+    attr_reader :from, :sent, :date, :to, :text, :pdu, :multipart_id, :number_of_parts, :part_number
+
+    def initialize(device, decoded_pdu, pdu = nil)
+      @to = device.self_phone_number
+      @from = decoded_pdu.address.gsub("\u0000", '')
+      @sent = decoded_pdu.timestamp
+      @text = decoded_pdu.body
+      multipart_info(decoded_pdu) unless decoded_pdu.complete?
+      @pdu = pdu
+      @date = Time.now
+    end
+
+    def multipart_info(decoded_pdu)
+      multipart = decoded_pdu.user_data_header[:multipart]
+      @multipart_id = multipart[:reference]
+      @number_of_parts = multipart[:parts]
+      @part_number = multipart[:part_number]
+    end
+  end
 end
