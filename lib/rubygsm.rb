@@ -6,6 +6,7 @@ require "#{dir}/rubygsm/core.rb"
 require "#{dir}/rubygsm/errors.rb"
 require "#{dir}/rubygsm/log.rb"
 require "#{dir}/rubygsm/pdu_decoder.rb"
+require "#{dir}/rubygsm/decoded_pdu.rb"
 
 # messages are now passed around
 # using objects, rather than flat

@@ -13,6 +13,8 @@ require "date.rb"
 # now, so we can depend upon it in our spec)
 require "rubygems"
 require "serialport"
+require "pdu_sms"
+require "time"
 
 module Gsm
 class Modem
@@ -987,9 +989,9 @@ class Modem
 			# extract and parse PDU from the line just below the CMGL line
       pdu = lines[n+1]
       decoded_pdu = PduDecoder.decode(pdu)
-      from = decoded_pdu.address
-      sent = decoded_pdu.timestamp
-      text = decoded_pdu.body
+      from = decoded_pdu.from
+      sent = decoded_pdu.sent
+      text = decoded_pdu.text
 
 			# log the incoming message
 			log "Fetched #{message_type(decoded_pdu)} from #{from} sent #{sent}: #{text.inspect}"
@@ -1012,8 +1014,7 @@ class Modem
 	end
 
 	def part_data(decoded_pdu)
-		multipart = decoded_pdu.user_data_header[:multipart]
-		"#{multipart[:part_number]} from #{multipart[:parts]} with id #{multipart[:reference]}"
+		"#{decoded_pdu.part_number} from #{decoded_pdu.number_of_parts} with id #{decoded_pdu.multipart_id}"
 	end
 
 end # Modem
