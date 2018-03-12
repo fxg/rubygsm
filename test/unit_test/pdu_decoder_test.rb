@@ -127,5 +127,16 @@ module UnitTest
       assert_equal 'Skupina KB', decoded_pdu.from
       assert decoded_pdu.complete?
     end
+
+    def test_decoding_production_pdu_4
+      pdu = '07912470338016004404B96430001181301190404340A0050003CE0201886FB13C0F2297DD2C903E0C9A81C8EE3CC81A6E83DC61D0383D6797413618ED668BD96035D07CFD768FD3A037B95D768741FA3088FC16A7E969D0B40E2FCB41F3B05E1C76819A757D995E06CDD320751A14669741737798EC7E83F4E17919A40FC3DDEF3ADD055286D73FD0941E1EA741F33488FC16A7E9A0B5BC4C4ED341F0375D5E16BBDF'
+      decoded_pdu = PduDecoder.decode(pdu)
+      assert_equal 'Dobry den, za 3 dny Vam na cisle 604761605 skonci odmena za dobiti Super sazba. Muzete si ji ale snadno zase zapnout. Jak? Staci si dobit kredit potrebno', decoded_pdu.text
+      assert_equal Time.parse('2018-03-11 09:04:34 +0100'), decoded_pdu.sent
+      assert_equal '4603', decoded_pdu.from
+      assert_equal 206, decoded_pdu.multipart_id
+      assert_equal 2, decoded_pdu.number_of_parts
+      assert_equal 1, decoded_pdu.part_number
+    end
   end
 end
