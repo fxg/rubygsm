@@ -1,0 +1,22 @@
+AllCops:
+  TargetRubyVersion: 2.4
+
+Layout/IndentHash:
+  EnforcedStyle: consistent
+Style/TrailingCommaInLiteral:
+  EnforcedStyleForMultiline: no_comma
+Style/TrailingCommaInArguments:
+  EnforcedStyleForMultiline: no_comma
+Layout/AlignParameters:
+  EnforcedStyle: with_fixed_indentation
+
+Style/Documentation:
+  Enabled: false
+Style/GuardClause:
+  Enabled: false
+Style/FrozenStringLiteralComment:
+  Enabled: false
+Metrics:
+  Enabled: false
+Rails:
+  Enabled: false

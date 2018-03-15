@@ -1,5 +1,4 @@
 module Gsm
-  # Incoming
   class Incoming
     attr_reader :from, :sent, :date, :to, :text, :pdu, :multipart_id, :number_of_parts, :part_number
 

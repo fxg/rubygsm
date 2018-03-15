@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rubygsm (0.58)
+    rubygsm (0.59)
       pdu_sms (>= 1.1.7)
       serialport (>= 1.1.0)
 

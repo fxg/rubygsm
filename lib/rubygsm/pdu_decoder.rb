@@ -1,4 +1,3 @@
-# PduDecoder
 class PduDecoder
   def self.decode(pdu)
     decode_with_pdu_sms(pdu)

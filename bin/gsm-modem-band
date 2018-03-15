@@ -1,49 +1,40 @@
 #!/usr/bin/env ruby
 # vim: noet
 
-#require "rubygems"
-#require "rubygsm"
+# require "rubygems"
+# require "rubygsm"
 dir = File.dirname(__FILE__)
 require "#{dir}/../lib/rubygsm.rb"
 
-
 begin
-	modem = Gsm::Modem.new
-	
+  modem = Gsm::Modem.new
 rescue Gsm::Modem::Error => err
-	puts "Initialization Error:"
-	puts "  #{err}"
-	exit
+  puts 'Initialization Error:'
+  puts "  #{err}"
+  exit
 end
 
-
-puts "Found modem on port:"
-puts "  " + modem.port
+puts 'Found modem on port:'
+puts '  ' + modem.port
 puts
 
-
-puts "GSM bands supported:"
-puts "  " + modem.bands_available.join(", ")
+puts 'GSM bands supported:'
+puts '  ' + modem.bands_available.join(', ')
 puts
 
-
-puts "Currently selected:"
-puts "  " + modem.band
+puts 'Currently selected:'
+puts '  ' + modem.band
 puts
-
 
 if ARGV[0]
-	new_band = ARGV[0].downcase
-	
-	begin
-		modem.band = new_band
-		puts "Switched to: "
-		puts "  #{modem.band}"
-		
-	rescue StandardError => err
-		puts "Error switching band: "
-		puts "  #{err}"
-	end
-	
-	puts
+  new_band = ARGV[0].downcase
+  begin
+    modem.band = new_band
+    puts 'Switched to: '
+    puts "  #{modem.band}"
+  rescue StandardError => err
+    puts 'Error switching band: '
+    puts "  #{err}"
+  end
+  puts
 end
