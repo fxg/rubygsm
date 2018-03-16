@@ -5,7 +5,7 @@ module Gsm
 
     def initialize(device, decoded_pdu, pdu = nil)
       @to = device.self_phone_number
-      @from = decoded_pdu.from.gsub("\u0000", '')
+      @from = decoded_pdu.from.gsub(/[^A-Za-z0-9]/, '')
       @sent = decoded_pdu.sent
       @text = decoded_pdu.text
       multipart_info(decoded_pdu) unless decoded_pdu.complete?

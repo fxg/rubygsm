@@ -138,5 +138,16 @@ module UnitTest
       assert_equal 2, decoded_pdu.number_of_parts
       assert_equal 1, decoded_pdu.part_number
     end
+
+    def test_decoding_production_pdu_5
+      pdu = '07919712690000F1400BD0C3E4322235020008813051916402218C050003B70301042304320430043604300435043C044B0435002004380437043104380440043004420435043B043800210020003100380020043C04300440044204300020002D00200432044B0431043E0440044B0020041F044004350437043804340435043D0442043000200420043E0441044104380438002E00200413043E043B043E0441043E04320430'
+      decoded_pdu = PduDecoder.decode(pdu)
+      assert_equal 'Уважаемые избиратели! 18 марта - выборы Президента России. Голосова', decoded_pdu.text
+      assert_equal Time.parse('2018-03-15 17:46:20 +0100'), decoded_pdu.sent
+      assert_equal "CIK\u0011RF", decoded_pdu.from
+      assert_equal 183, decoded_pdu.multipart_id
+      assert_equal 3, decoded_pdu.number_of_parts
+      assert_equal 1, decoded_pdu.part_number
+    end
   end
 end
