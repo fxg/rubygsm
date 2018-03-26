@@ -149,5 +149,14 @@ module UnitTest
       assert_equal 3, decoded_pdu.number_of_parts
       assert_equal 1, decoded_pdu.part_number
     end
+
+    def test_decoding_production_pdu_6
+      pdu = '07918497908906F0040DD042ED55B894D1000000813062611125802BCCF7F97D0FBBD36590CCE682CD5C32580C078AD974B11868DE9E2FDF641D2816A3D96E34DC0C'
+      decoded_pdu = PduDecoder.decode(pdu)
+      assert_equal 'Logowanie 26.03.2018 16:11 smsKod: 11467483', decoded_pdu.text
+      assert_equal Time.parse('2018-03-26 16:11:52 +0200'), decoded_pdu.sent
+      assert_equal 'BZWBK24', decoded_pdu.from
+      assert decoded_pdu.complete?
+    end
   end
 end

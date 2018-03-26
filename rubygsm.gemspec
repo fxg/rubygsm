@@ -5,8 +5,8 @@ $LOAD_PATH.unshift(test) unless $LOAD_PATH.include?(test)
 
 Gem::Specification.new do |s|
 	s.name     = "rubygsm"
-	s.version  = "0.57"
-	s.date     = "2018-03-16"
+	s.version  = "0.58"
+	s.date     = "2018-03-27"
 	s.summary  = "Send and receive SMS with a GSM modem"
 	s.email    = "adam.mckaig@gmail.com"
 	s.homepage = "https://github.com/kontomatik/rubygsm"
@@ -31,7 +31,7 @@ Gem::Specification.new do |s|
 	]
 
 	s.add_dependency("serialport", [">= 1.1.0"])
-	s.add_dependency("pdu_sms", [">=1.1.6"])
+	s.add_dependency("pdu_sms", [">=1.1.7"])
 
   s.add_development_dependency 'minitest', '~> 5.10'
 	s.add_development_dependency 'bundler', '~> 1.11'
