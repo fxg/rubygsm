@@ -132,16 +132,16 @@ module Gsm
     INCOMING_FMT = '%y/%m/%d,%H:%M:%S%Z'.freeze #:nodoc:
     CMGL_STATUS = 0 # to fetch unread messages in PDU mode
 
-    def parse_incoming_timestamp(ts)
+    def parse_incoming_timestamp(timestamp)
       # extract the weirdo quarter-hour timezone,
       # convert it into a regular hourly offset
-      ts.sub!(/(\d+)$/) do |m|
+      timestamp.sub!(/(\d+)$/) do |m|
         format('%02d', (m.to_i / 4))
       end
 
       # parse the timestamp, and attempt to re-align
       # it according to the timezone we extracted
-      DateTime.strptime(ts, INCOMING_FMT)
+      Date.strptime(timestamp, INCOMING_FMT)
     end
 
     def parse_incoming_sms!(lines)
@@ -279,9 +279,8 @@ module Gsm
             # (nil signifies an error)
             raise Gsm::ReadError if char.nil?
 
-            # convert the character to ascii,
-            # and append it to the tmp buffer
-            buf << format('%c', char)
+            # append the character to the tmp buffer
+            buf << char
 
             # if a terminator was just received,
             # then return the current buffer
@@ -378,7 +377,7 @@ module Gsm
       # rest up for a bit (modems are
       # slow, and get confused easily)
       sleep(@cmd_delay)
-      return out
+      out
 
     # if the 515 (please wait) error was thrown,
     # then automatically re-try the command after
@@ -403,10 +402,10 @@ module Gsm
       log_incr "Trying Command: #{cmd}"
       out = command(cmd, *args)
       log_decr "=#{out.inspect} // try_command"
-      return out
+      out
     rescue Error => err
       log_then_decr "Rescued (in #try_command): #{err}"
-      return nil
+      nil
     end
 
     def query(cmd)
@@ -512,7 +511,7 @@ module Gsm
     #
     # Resets the modem software, or raises Gsm::ResetError.
     def reset!
-      return command!('AT+CFUN=1')
+      command!('AT+CFUN=1')
 
     # if the reset fails, we'll wrap the exception in
     # a Gsm::ResetError, so it can be caught upstream.
@@ -728,11 +727,11 @@ module Gsm
     # was sent, which is... never.
     def send_sms(*args)
       send_sms!(*args)
-      return true
+      true
 
     # something went wrong
     rescue Gsm::Error
-      return false
+      false
     end
 
     # call-seq:
@@ -893,7 +892,7 @@ module Gsm
 
     def fetch_stored_messages
       # fetch all/unread (see constant) messages
-      lines = command(format('AT+CMGL=%s', CMGL_STATUS))
+      lines = command("AT+CMGL=#{CMGL_STATUS}")
       n = 0
 
       # if the last line returned is OK

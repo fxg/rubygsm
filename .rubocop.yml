@@ -3,7 +3,7 @@ AllCops:
 
 Layout/IndentHash:
   EnforcedStyle: consistent
-Style/TrailingCommaInLiteral:
+Style/TrailingCommaInArrayLiteral:
   EnforcedStyleForMultiline: no_comma
 Style/TrailingCommaInArguments:
   EnforcedStyleForMultiline: no_comma

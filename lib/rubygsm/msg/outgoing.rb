@@ -8,7 +8,7 @@ module Gsm
     def initialize(device, recipient = nil, text = nil)
       # check that the device is
       # raise ArgumentError, "Invalid device"\
-      #	unless device.respond_to?(:send_sms)
+      # unless device.respond_to?(:send_sms)
 
       # init the instance vars
       @recipient = recipient

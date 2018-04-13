@@ -57,8 +57,8 @@ module Gsm
       ind = '  ' * ((@log_indents[Thread.current] || 0) + 1)
 
       # create a
-      #	thr = Thread.current["name"]
-      #	thr = (thr.nil?) ? "" : "[#{thr}] "
+      # thr = Thread.current["name"]
+      # thr = (thr.nil?) ? "" : "[#{thr}] "
       # dump (almost) everything to file
       if LOG_LEVELS[level] >= (LOG_LEVELS[:debug]) || level == :file
 
@@ -69,7 +69,7 @@ module Gsm
       # also print to the rolling
       # screen log, if necessary
       if LOG_LEVELS[@verbosity] >= LOG_LEVELS[level]
-        $stderr.puts Time.now.strftime('%F %T.%L') + ind + msg
+        warn Time.now.strftime('%F %T.%L') + ind + msg
       end
     end
 
@@ -91,5 +91,5 @@ module Gsm
       log(*args)
       log_decr
     end
-  end # Modem
-end # Gsm
+  end
+end

@@ -68,7 +68,7 @@ module Gsm
         # enable (ATE1) or disable
         # (ATE0) character echo [104]
         elsif (m = cmd.match(/^ATE[01]$/))
-          @echo = m.captures[0] == '1' ? true : false
+          @echo = m.captures[0] == '1'
           return ok
         end
 
@@ -103,7 +103,7 @@ module Gsm
       def at_csq
         # return a signal strength of
         # somewhere between 20 and 80
-        output("+CSQ: #{rand(60) + 20},0")
+        output("+CSQ: #{Random.new.rand(20...80)},0")
       end
 
       # reset the modem software
