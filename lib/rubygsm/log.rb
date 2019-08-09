@@ -15,7 +15,7 @@ module Gsm
       error: 1
     }.freeze
 
-    def log_init(path = nil)
+    def log_init(path = Dir.pwd)
       if @port
 
         # build a log filename based on the device's
