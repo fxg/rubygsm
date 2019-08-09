@@ -32,7 +32,11 @@ module Gsm
       end
 
       # (re-) open the log file
-      @log = File.new filename, 'w'
+      begin
+        @log = File.new filename, 'w'
+      rescue => e
+        @log = File.new 'modem_setup.log', 'w'
+      end
 
       # dump some useful information
       # at the top, for debugging
