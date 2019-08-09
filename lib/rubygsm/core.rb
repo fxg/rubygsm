@@ -56,7 +56,7 @@ module Gsm
       @multipart = {}
 
       # start logging to file
-      logger = Logger.new("#{@port}.log")
+      logger = Logger.new("port_#{@port.scan(/\d/).join('')}.log")
 
       # to store incoming messages
       # until they're dealt with by
