@@ -15,7 +15,7 @@ module Gsm
       error: 1
     }.freeze
 
-    def log_init
+    def log_init(path = nil)
       if @port
 
         # build a log filename based on the device's
@@ -30,6 +30,9 @@ module Gsm
       else
         filename = 'modem_setup.log'
       end
+
+      # Join path to file if present
+      filename = File.join(path, filename) if path.present?
 
       # (re-) open the log file
       @log = File.new filename, 'w'
