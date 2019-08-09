@@ -114,17 +114,6 @@ module Gsm
 
       # storing all messages on SIM card only
       command 'AT+CPMS="SM","SM","SM"'
-
-      # fetching and storing self phone number
-      phone_number_response = try_command('AT+CNUM')
-      line_with_number = phone_number_response[0].match(/^\+CNUM: ".*","(\+?\d+)",\d+$/)
-      if line_with_number.nil?
-        @self_phone_number = 'unknown_number'
-        log 'Failed to fetch the self phone number'
-      else
-        @self_phone_number = line_with_number[1]
-      end
-      add_self_phone_number_to_log_file_name(@self_phone_number)
     end
 
     private
