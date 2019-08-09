@@ -15,7 +15,7 @@ require 'rubygems'
 require 'serialport'
 require 'pdu_sms'
 require 'time'
-require '@logger'
+require 'logger'
 
 module Gsm
   class Modem
