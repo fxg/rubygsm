@@ -15,7 +15,7 @@ require 'rubygems'
 require 'serialport'
 require 'pdu_sms'
 require 'time'
-require 'logger'
+require '@logger'
 
 module Gsm
   class Modem
@@ -56,7 +56,7 @@ module Gsm
       @multipart = {}
 
       # start logging to file
-      logger = Logger.new("port_#{@port.scan(/\d/).join('')}.log")
+      @logger = Logger.new("port_#{@port.scan(/\d/).join('')}.log")
 
       # to store incoming messages
       # until they're dealt with by
@@ -216,7 +216,7 @@ module Gsm
       # include the terminator in the traffic dump,
       # if it's anything other than the default
       # suffix = (term != ["\r\n"]) ? " (term=#{term.inspect})" : ""
-      # logger.info "Read" + suffix, :traffic
+      # @logger.info "Read" + suffix, :traffic
 
       begin
         timeout(@read_timeout) do
@@ -257,10 +257,10 @@ module Gsm
       begin
         # attempt to issue the command, which
         # might blow up, if the modem is angry
-        logger.info "Command: #{cmd} (##{tries + 1} of #{@retry_commands + 1})"
+        @logger.info "Command: #{cmd} (##{tries + 1} of #{@retry_commands + 1})"
         out = command!(cmd, *args)
       rescue StandardError => err
-        logger.info "Rescued (in #command): #{err}"
+        @logger.info "Rescued (in #command): #{err}"
 
         if (tries += 1) <= @retry_commands
           delay = (2**tries) / 2
@@ -275,7 +275,7 @@ module Gsm
         # nothing that we can do; so propagate
         # reboot the modem. this happens more often
         if @reset_on_failure
-          logger.info 'Resetting the modem'
+          @logger.info 'Resetting the modem'
           retry if reset!
 
           # failed to reboot :'(
@@ -285,13 +285,13 @@ module Gsm
           # we've retried enough times, but don't
           # want to auto reset. let's hope that
           # someone upstream has a better idea
-          logger.info 'Propagating exception'
+          @logger.info 'Propagating exception'
         end
         raise
       end
 
       # the command was successful
-      logger.info "=#{out.inspect} // command"
+      @logger.info "=#{out.inspect} // command"
       out
     end
 
@@ -301,7 +301,7 @@ module Gsm
     # automatically retry failing commands
     def command!(cmd, resp_term = nil, write_term = "\r")
       out = ''
-      logger.info "Command!: #{cmd}"
+      @logger.info "Command!: #{cmd}"
 
       exclusive do
         write(cmd + write_term)
@@ -320,7 +320,7 @@ module Gsm
       end
 
       # log the modified output
-      logger.info "=#{out.inspect} // command!"
+      @logger.info "=#{out.inspect} // command!"
 
       # rest up for a bit (modems are
       # slow, and get confused easily)
@@ -331,14 +331,14 @@ module Gsm
     # then automatically re-try the command after
     # a short delay. for others, propagate
     rescue Error => err
-      logger.info "Rescued (in #command!): #{err}"
+      @logger.info "Rescued (in #command!): #{err}"
 
       if (err.type == 'CMS') && (err.code == 515)
         sleep 2
         retry
       end
 
-      logger.info
+      @logger.info
       raise
     end
 
@@ -347,23 +347,23 @@ module Gsm
     # nil. This should be used to issue commands which
     # aren't vital - of which there are VERY FEW.
     def try_command(cmd, *args)
-      logger.info "Trying Command: #{cmd}"
+      @logger.info "Trying Command: #{cmd}"
       out = command(cmd, *args)
-      logger.info "=#{out.inspect} // try_command"
+      @logger.info "=#{out.inspect} // try_command"
       out
     rescue Error => err
-      logger.info "Rescued (in #try_command): #{err}"
+      @logger.info "Rescued (in #try_command): #{err}"
       nil
     end
 
     def query(cmd)
-      logger.info "Query: #{cmd}"
+      @logger.info "Query: #{cmd}"
       out = command cmd
 
       # only very simple responses are supported
       # (on purpose!) here - [response, crlf, ok]
       if (out.length == 2) && (out[1] == 'OK')
-        logger.info "=#{out[0].inspect}"
+        @logger.info "=#{out[0].inspect}"
         out[0]
       else
         err = "Invalid response: #{out.inspect}"
@@ -375,7 +375,7 @@ module Gsm
     # until an OK or ERROR terminator is hit
     def wait(term = nil)
       buffer = []
-      logger.info 'Waiting for response'
+      @logger.info 'Waiting for response'
 
       loop do
         buf = read(term)
@@ -384,20 +384,20 @@ module Gsm
         # some errors contain useful error codes,
         # so raise a proper error with a description
         if (m = buf.match(/^\+(CM[ES]) ERROR: (\d+)$/))
-          logger.info "!! Raising Gsm::Error #{Regexp.last_match(1)} #{Regexp.last_match(2)}"
+          @logger.info "!! Raising Gsm::Error #{Regexp.last_match(1)} #{Regexp.last_match(2)}"
           raise Error.new(*m.captures)
         end
 
         # some errors are not so useful :|
         if buf == 'ERROR'
-          logger.info '!! Raising Gsm::Error'
+          @logger.info '!! Raising Gsm::Error'
           raise Error
         end
 
         # most commands return OK upon success, except
         # for those which prompt for more data (CMGS)
         if (buf == 'OK') || (buf == '>')
-          logger.info "=#{buffer.inspect}"
+          @logger.info "=#{buffer.inspect}"
           return buffer
         end
 
@@ -405,7 +405,7 @@ module Gsm
         # even when they're successful, so check
         # for those exceptions manually
         if buf.match?(/^\+CPIN: (.+)$/)
-          logger.info "=#{buffer.inspect}"
+          @logger.info "=#{buffer.inspect}"
           return buffer
         end
       end
@@ -430,7 +430,7 @@ module Gsm
         # we got the lock!
         old_lock = @locked_to
         @locked_to = Thread.current
-        logger.info 'Got lock'
+        @logger.info 'Got lock'
 
         # perform the command while
         # we have exclusive access
@@ -448,7 +448,7 @@ module Gsm
       ensure
         @locked_to = old_lock
         Thread.pass
-        logger.info
+        @logger.info
       end
     end
 
@@ -735,7 +735,7 @@ module Gsm
         tries = 0
 
         begin
-          logger.info "Sending SMS to #{to}: #{msg}"
+          @logger.info "Sending SMS to #{to}: #{msg}"
           log "Attempt #{tries + 1} of #{@retry_commands}"
 
           # initiate the sms, and wait for either
@@ -757,7 +757,7 @@ module Gsm
           write 27.chr
 
           if (tries += 1) < @retry_commands
-            logger.info
+            @logger.info
             sleep((2**tries) / 2)
             retry
           end
@@ -767,7 +767,7 @@ module Gsm
           # it for more useful info
           raise
         ensure
-          logger.info
+          @logger.info
         end
       end
 
