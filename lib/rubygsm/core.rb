@@ -857,7 +857,7 @@ module Gsm
         # always land at a CMGL line here) - they look like:
         #   +CMGL: 1,0,,39
         #   07911326040011F5240B911326880736F40000111081017362401654747A0E4ACF41F4329E0E6A97E7F3F0B90C8A01
-        unless lines[n].match?(/^\+CMGL: (\d+?),(\d+?"),(\"\"?),(\d+)$/)
+        unless lines[n].match?(/^\+CMGL: (\d+?),(\d+?"),(.*?),(\d+)$/)
           err = "Couldn't parse CMGL data: #{lines[n]}"
           log err
           raise err
