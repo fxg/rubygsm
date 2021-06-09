@@ -830,7 +830,7 @@ module Gsm
           @incoming.clear
         end
 
-        command('AT+CMGD=0,1') # remove all read messages (to prevent filling whole simcard memory)
+        # command('AT+CMGD=0,1') # remove all read messages (to prevent filling whole simcard memory)
         # more info: http://www.developershome.com/sms/readSmsByAtCommands.asp
         # re-poll every
         # five seconds
