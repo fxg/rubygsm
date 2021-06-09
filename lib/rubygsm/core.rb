@@ -78,7 +78,7 @@ module Gsm
     private
 
     INCOMING_FMT = '%y/%m/%d,%H:%M:%S%Z'.freeze #:nodoc:
-    CMGL_STATUS = 4 # to fetch unread messages in PDU mode
+    CMGL_STATUS = 0 # to fetch unread messages in PDU mode
 
     def parse_incoming_timestamp(timestamp)
       # extract the weirdo quarter-hour timezone,
